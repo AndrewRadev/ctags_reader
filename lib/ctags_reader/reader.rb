@@ -37,6 +37,10 @@ module CtagsReader
       @tags.values.flatten
     end
 
+    def tag_count
+      tags.count
+    end
+
     def find(query)
       find_all(query).first
     end
@@ -51,6 +55,10 @@ module CtagsReader
         # should be a direct match
         @tags[query] || []
       end
+    end
+
+    def to_s
+      "#<CtagsReader::Reader:#{object_id} (#{tag_count} tags)>"
     end
 
     private

@@ -2,9 +2,7 @@
 
 $: << File.expand_path('../../lib', __FILE__)
 
+require 'pry'
 require 'ctags_reader'
 
-File.open('tags', 'r') do |file|
-  reader = CtagsReader::Reader.new(file)
-  puts reader.find('Reader')
-end
+Pry.start
