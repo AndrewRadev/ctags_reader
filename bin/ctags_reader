@@ -1,0 +1,10 @@
+#! /usr/bin/env ruby
+
+$: << File.expand_path('../../lib', __FILE__)
+
+require 'ctags_reader'
+
+File.open('tags', 'r') do |file|
+  reader = CtagsReader::Reader.new(file)
+  puts reader.find('Reader')
+end
