@@ -14,32 +14,48 @@ module CtagsReader
     end
     let(:reader) { Reader.new(input) }
 
-    it "knows all of its tag names" do
-      reader.names.should =~ %w(ClassName ClassNameTwo method_name)
+    it "can be initialized with a file" do
+      File.open('tagfile', 'w') do |file|
+        file.write('ClassName	lib/class_name.rb	/^class ClassName$/	c')
+      end
+
+      Reader.new('tagfile').names.should eq %w(ClassName)
     end
 
-    it "knows all of its tags" do
-      reader.tags.map(&:name).should =~ %w(ClassName ClassNameTwo method_name method_name)
+    it "raises an error when given a non-existing filename" do
+      expect {
+        Reader.new('nonexistent').names
+      }.to raise_error Errno::ENOENT
     end
 
-    it "can find tags as a direct match" do
-      reader.find('ClassName').name.should eq 'ClassName'
-      reader.find('method_name').name.should eq 'method_name'
-    end
+    describe "(finding tags)" do
+      it "knows all of its tag names" do
+        reader.names.should =~ %w(ClassName ClassNameTwo method_name)
+      end
 
-    it "can find tags that start with a pattern" do
-      reader.find('^method_').name.should eq 'method_name'
-      reader.find_all('^ClassName').map(&:name).should =~ %w(ClassName ClassNameTwo)
-    end
+      it "knows all of its tags" do
+        reader.tags.map(&:name).should =~ %w(ClassName ClassNameTwo method_name method_name)
+      end
 
-    it "can find multiple tags with the same name" do
-      reader.find_all('method_name').should have(2).items
-    end
+      it "can find tags as a direct match" do
+        reader.find('ClassName').name.should eq 'ClassName'
+        reader.find('method_name').name.should eq 'method_name'
+      end
 
-    it "returns nothing for non-existent tags" do
-      reader.find('nonexistent').should be_nil
-      reader.find('^nonexistent').should be_nil
-      reader.find_all('^nonexistent').should be_empty
+      it "can find tags that start with a pattern" do
+        reader.find('^method_').name.should eq 'method_name'
+        reader.find_all('^ClassName').map(&:name).should =~ %w(ClassName ClassNameTwo)
+      end
+
+      it "can find multiple tags with the same name" do
+        reader.find_all('method_name').should have(2).items
+      end
+
+      it "returns nothing for non-existent tags" do
+        reader.find('nonexistent').should be_nil
+        reader.find('^nonexistent').should be_nil
+        reader.find_all('^nonexistent').should be_empty
+      end
     end
   end
 end
