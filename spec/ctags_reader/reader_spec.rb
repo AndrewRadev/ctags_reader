@@ -63,13 +63,22 @@ module CtagsReader
         StringIO.new([
           'Class	lib/one/class.rb	/^class Class$/	c',
           'Class	lib/two/class.rb	/^class Class$/	c',
+          'One	lib/one.rb	/^class One$/	c',
+          'Two	lib/two.rb	/^class Two$/	c',
+          'foo	lib/one.rb	/^def foo$/	c',
+          'foo	lib/two.rb	/^def foo$/	c',
         ].join("\n"))
       end
       let(:reader) { Reader.new(input) }
 
-      it "can find a namespaced class by its filename" do
+      it "can detect a namespaced class by its filename" do
         reader.find_all('One::Class').map(&:filename).should include('lib/one/class.rb')
         reader.find_all('One::Class').map(&:filename).should_not include('lib/two/class.rb')
+      end
+
+      it "can detect a method by its parent class" do
+        reader.find_all('One#foo').map(&:filename).should include('lib/one.rb')
+        reader.find_all('One#foo').map(&:filename).should_not include('lib/two.rb')
       end
     end
   end

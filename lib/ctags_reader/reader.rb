@@ -47,9 +47,17 @@ module CtagsReader
     end
 
     def find_all(query)
-      if query.include?('::')
+      if query.include?('#')
+        class_name, method_name = query.split('#')
+        class_filenames = find_all(class_name).map(&:filename).uniq
+
+        find_all(method_name).select do |tag|
+          class_filenames.include?(tag.filename)
+        end
+      elsif query.include?('::')
         filename = class_to_filename(query)
         class_name = query.split('::').last
+
         direct_find_all(class_name).select do |tag|
           tag.filename =~ /#{filename}$/
         end
