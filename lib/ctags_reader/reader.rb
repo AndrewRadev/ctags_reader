@@ -1,3 +1,4 @@
+require 'active_support/inflector/methods'
 require 'ctags_reader/tag'
 
 module CtagsReader
@@ -45,8 +46,30 @@ module CtagsReader
       find_all(query).first
     end
 
-    # TODO (2013-02-11) Binary search?
     def find_all(query)
+      if query.include?('::')
+        filename = class_to_filename(query)
+        class_name = query.split('::').last
+        direct_find_all(class_name).select do |tag|
+          tag.filename =~ /#{filename}$/
+        end
+      else
+        direct_find_all(query)
+      end
+    end
+
+    def to_s
+      "#<CtagsReader::Reader:#{object_id} (#{tag_count} tags)>"
+    end
+
+    private
+
+    def class_to_filename(full_class_name)
+      ActiveSupport::Inflector.underscore(full_class_name) + '.rb'
+    end
+
+    # TODO (2013-02-11) Binary search?
+    def direct_find_all(query)
       if query.start_with?('^')
         # consider it a regex
         pattern = Regexp.new(query)
@@ -56,12 +79,6 @@ module CtagsReader
         @tags[query] || []
       end
     end
-
-    def to_s
-      "#<CtagsReader::Reader:#{object_id} (#{tag_count} tags)>"
-    end
-
-    private
 
     def parse
       file do |handle|

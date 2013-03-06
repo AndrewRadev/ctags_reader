@@ -57,5 +57,20 @@ module CtagsReader
         reader.find_all('^nonexistent').should be_empty
       end
     end
+
+    describe "(finding tags with heuristics)" do
+      let(:input) do
+        StringIO.new([
+          'Class	lib/one/class.rb	/^class Class$/	c',
+          'Class	lib/two/class.rb	/^class Class$/	c',
+        ].join("\n"))
+      end
+      let(:reader) { Reader.new(input) }
+
+      it "can find a namespaced class by its filename" do
+        reader.find_all('One::Class').map(&:filename).should include('lib/one/class.rb')
+        reader.find_all('One::Class').map(&:filename).should_not include('lib/two/class.rb')
+      end
+    end
   end
 end

@@ -15,6 +15,8 @@ Gem::Specification.new do |s|
     useful information out of it.
   D
 
+  s.add_dependency 'activesupport', '>= 3.2.0'
+
   s.add_development_dependency 'rspec', '>= 2.0.0'
   s.add_development_dependency 'rake'
 
