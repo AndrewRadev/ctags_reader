@@ -42,9 +42,18 @@ module CtagsReader
         reader.find('method_name').name.should eq 'method_name'
       end
 
+      it "can find direct matches quickly" do
+        reader.fast_find('ClassName').name.should eq 'ClassName'
+        reader.fast_find('method_name').name.should eq 'method_name'
+      end
+
       it "can find tags that start with a pattern" do
         reader.find('^method_').name.should eq 'method_name'
         reader.find_all('^ClassName').map(&:name).should =~ %w(ClassName ClassNameTwo)
+      end
+
+      it "can find pattern tags quickly" do
+        reader.fast_find('^method_').name.should eq 'method_name'
       end
 
       it "can find multiple tags with the same name" do
@@ -53,7 +62,11 @@ module CtagsReader
 
       it "returns nothing for non-existent tags" do
         reader.find('nonexistent').should be_nil
+        reader.fast_find('nonexistent').should be_nil
+
         reader.find('^nonexistent').should be_nil
+        reader.fast_find('^nonexistent').should be_nil
+
         reader.find_all('^nonexistent').should be_empty
       end
     end

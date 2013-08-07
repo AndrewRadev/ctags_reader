@@ -16,7 +16,7 @@ module CtagsReader
         @file = file
       end
 
-      @tags = {}
+      @tag_index = {}
       parse
     end
 
@@ -31,15 +31,32 @@ module CtagsReader
     end
 
     def names
-      @tags.keys
+      @names ||= @tag_index.keys
     end
 
     def tags
-      @tags.values.flatten
+      @tags ||= @tag_index.values.flatten
     end
 
     def tag_count
       tags.count
+    end
+
+    if [].respond_to?(:bsearch)
+      def fast_find(query)
+        if query.start_with?('^')
+          # consider it a regex
+          pattern = Regexp.new(query)
+          tags.bsearch { |tag| !!(tag.name =~ pattern) }
+        else
+          # should be a direct match
+          (@tag_index[query] || []).first
+        end
+      end
+    else
+      def fast_find(query)
+        find(query)
+      end
     end
 
     def find(query)
@@ -76,15 +93,14 @@ module CtagsReader
       ActiveSupport::Inflector.underscore(full_class_name) + '.rb'
     end
 
-    # TODO (2013-02-11) Binary search?
     def direct_find_all(query)
       if query.start_with?('^')
         # consider it a regex
         pattern = Regexp.new(query)
-        @tags.select { |name, tags| name =~ pattern }.map(&:last).flatten
+        @tag_index.select { |name, tags| name =~ pattern }.map(&:last).flatten
       else
         # should be a direct match
-        @tags[query] || []
+        @tag_index[query] || []
       end
     end
 
@@ -94,8 +110,8 @@ module CtagsReader
           next if line.start_with?('!_TAG_')
 
           tag = Tag.from_string(line)
-          @tags[tag.name] ||= []
-          @tags[tag.name] << tag
+          @tag_index[tag.name] ||= []
+          @tag_index[tag.name] << tag
         end
       end
     end
