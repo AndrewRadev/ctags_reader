@@ -49,9 +49,9 @@ module CtagsReader
     if [].respond_to?(:bsearch)
       def fast_find(query)
         if query.start_with?('^')
-          # consider it a regex
-          pattern = Regexp.new(query)
-          tags.bsearch { |tag| !!(tag.name =~ pattern) }
+          # drop the ^, look for a prefix
+          prefix = query[1..-1]
+          tags.bsearch { |tag| prefix <=> tag.name[0...prefix.length] }
         else
           # should be a direct match
           (tag_index[query] || []).first
