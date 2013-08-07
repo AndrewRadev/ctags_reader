@@ -23,7 +23,6 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = '>= 1.3.6'
   s.rubyforge_project         = 'ctags_reader'
 
-  s.files        = Dir['{lib}/**/*.rb', 'bin/*', 'LICENSE', '*.md']
+  s.files        = Dir['{lib}/**/*.rb', 'LICENSE', '*.md']
   s.require_path = 'lib'
-  s.executables  = ['ctags_reader']
 end
