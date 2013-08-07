@@ -16,8 +16,12 @@ module CtagsReader
         @file = file
       end
 
-      @tag_index = {}
-      parse
+      @tag_index = nil
+    end
+
+    def tag_index
+      parse if not @tag_index
+      @tag_index
     end
 
     def file(&block)
@@ -31,11 +35,11 @@ module CtagsReader
     end
 
     def names
-      @names ||= @tag_index.keys
+      @names ||= tag_index.keys
     end
 
     def tags
-      @tags ||= @tag_index.values.flatten
+      @tags ||= tag_index.values.flatten
     end
 
     def tag_count
@@ -50,7 +54,7 @@ module CtagsReader
           tags.bsearch { |tag| !!(tag.name =~ pattern) }
         else
           # should be a direct match
-          (@tag_index[query] || []).first
+          (tag_index[query] || []).first
         end
       end
     else
@@ -97,14 +101,16 @@ module CtagsReader
       if query.start_with?('^')
         # consider it a regex
         pattern = Regexp.new(query)
-        @tag_index.select { |name, tags| name =~ pattern }.map(&:last).flatten
+        tag_index.select { |name, tags| name =~ pattern }.map(&:last).flatten
       else
         # should be a direct match
-        @tag_index[query] || []
+        tag_index[query] || []
       end
     end
 
     def parse
+      @tag_index = {}
+
       file do |handle|
         handle.each_line do |line|
           next if line.start_with?('!_TAG_')
