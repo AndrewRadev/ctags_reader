@@ -21,7 +21,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rake'
 
   s.required_rubygems_version = '>= 1.3.6'
-  s.rubyforge_project         = 'ctags_reader'
+  s.license                   = 'MIT'
 
   s.files        = Dir['{lib}/**/*.rb', 'LICENSE', '*.md']
   s.require_path = 'lib'
